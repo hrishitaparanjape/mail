@@ -31,6 +31,7 @@ def compose(request):
 
     # Check recipient emails
     data = json.loads(request.body)
+    #print("data",data)
     emails = [email.strip() for email in data.get("recipients").split(",")]
     if emails == [""]:
         return JsonResponse({
