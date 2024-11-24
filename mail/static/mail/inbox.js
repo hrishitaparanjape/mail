@@ -30,6 +30,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-detail-view').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -41,7 +42,8 @@ function load_mailbox(mailbox) {
       emails.forEach(email => {
         emailsHTML += `
           <div class="email-box" 
-               style="border: 1px solid black; margin: 5px; padding: 10px; background-color: ${email.read ? 'gray' : 'white'};">
+               style="border: 1px solid black; margin: 5px; padding: 10px; background-color: ${email.read ? 'gray' : 'white'};"
+               onclick="load_email(${email.id})">
             <strong>From:</strong> ${email.sender} <br>
             <strong>Subject:</strong> ${email.subject} <br>
             <strong>Timestamp:</strong> ${email.timestamp}
@@ -52,6 +54,33 @@ function load_mailbox(mailbox) {
       document.querySelector('#emails-view').innerHTML += emailsHTML;
     })
 
+    .catch(error => console.log('Error:', error));
+}
+
+function load_email(email_id) {
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-detail-view').style.display = 'block';
+
+  fetch(`/emails/${email_id}`)
+    .then(response => response.json())
+    .then(email => {
+      document.querySelector('#email-detail-view').innerHTML = `
+        <button onclick="load_mailbox('inbox')">Back to Inbox</button> <br> <br>
+        <strong>From:</strong> ${email.sender} <br>
+        <strong>To:</strong> ${email.recipients.join(', ')} <br>
+        <strong>Subject:</strong> ${email.subject} <br>
+        <strong>Timestamp:</strong> ${email.timestamp} <br><br>
+        <p>${email.body}</p>
+      `;
+
+      if (!email.read) {
+        fetch(`/emails/${email_id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ read: true }),
+        }).catch(error => console.log('Error:', error));
+      }
+    })
     .catch(error => console.log('Error:', error));
 }
 
