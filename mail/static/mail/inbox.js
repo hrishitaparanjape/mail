@@ -66,13 +66,38 @@ function load_email(email_id) {
     .then(response => response.json())
     .then(email => {
       document.querySelector('#email-detail-view').innerHTML = `
-        <button onclick="load_mailbox('inbox')">Back to Inbox</button> <br> <br>
+        <button onclick="load_mailbox('inbox')">Back to Inbox</button> 
+        <button id="archive-button"></button>
+        <br> <br>
         <strong>From:</strong> ${email.sender} <br>
         <strong>To:</strong> ${email.recipients.join(', ')} <br>
         <strong>Subject:</strong> ${email.subject} <br>
         <strong>Timestamp:</strong> ${email.timestamp} <br><br>
         <p>${email.body}</p>
       `;
+
+      const archiveButton = document.querySelector('#archive-button');
+      if (email.archived) {
+        archiveButton.innerText = 'Unarchive';
+        archiveButton.onclick = () => {
+          fetch(`/emails/${email_id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ archived: false }),
+          })
+            .then(() => load_mailbox('inbox')) // Reload inbox
+            .catch(error => console.log('Error:', error));
+        };
+      } else {
+        archiveButton.innerText = 'Archive';
+        archiveButton.onclick = () => {
+          fetch(`/emails/${email_id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ archived: true }),
+          })
+            .then(() => load_mailbox('inbox')) // Reload inbox
+            .catch(error => console.log('Error:', error));
+        };
+      }
 
       if (!email.read) {
         fetch(`/emails/${email_id}`, {
