@@ -68,6 +68,7 @@ function load_email(email_id) {
       document.querySelector('#email-detail-view').innerHTML = `
         <button onclick="load_mailbox('inbox')">Back to Inbox</button> 
         <button id="archive-button"></button>
+        <button id="reply-button">Reply</button>
         <br> <br>
         <strong>From:</strong> ${email.sender} <br>
         <strong>To:</strong> ${email.recipients.join(', ')} <br>
@@ -105,8 +106,25 @@ function load_email(email_id) {
           body: JSON.stringify({ read: true }),
         }).catch(error => console.log('Error:', error));
       }
+
+      const replyButton = document.querySelector('#reply-button');
+      replyButton.onclick = () => reply_to_email(email);
     })
     .catch(error => console.log('Error:', error));
+}
+
+function reply_to_email(email) {
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#email-detail-view').style.display = 'none';
+  document.querySelector('#compose-recipients').value = email.sender;
+
+  let subject = email.subject;
+  if (!subject.startsWith("Re: ")) {
+    subject = "Re: " + subject;
+  }
+  document.querySelector('#compose-subject').value = subject;
+  document.querySelector('#compose-body').value = `--- On ${email.timestamp}, ${email.sender} wrote:\n${email.body}\n\n`;
 }
 
 function save_email(event) {
