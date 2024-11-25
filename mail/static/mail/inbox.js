@@ -124,7 +124,7 @@ function reply_to_email(email) {
     subject = "Re: " + subject;
   }
   document.querySelector('#compose-subject').value = subject;
-  document.querySelector('#compose-body').value = `--- On ${email.timestamp}, ${email.sender} wrote:\n${email.body}\n\n`;
+  document.querySelector('#compose-body').value = `--- On ${email.timestamp}, ${email.sender} wrote:\n${email.body}\n\n ---`;
 }
 
 function save_email(event) {
